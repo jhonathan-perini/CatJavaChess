@@ -1,11 +1,11 @@
 package com.chess.engine.player;
 
-import com.chess.engine.Alliance;
+import com.chess.engine.Color;
 import com.chess.engine.board.Board;
-import com.chess.engine.board.BoardUtils;
-import com.chess.engine.board.Move;
-import com.chess.engine.board.Move.KingSideCastleMove;
-import com.chess.engine.board.Move.QueenSideCastleMove;
+import com.chess.engine.board.BoardHandler;
+import com.chess.engine.board.Movement;
+import com.chess.engine.board.Movement.KingSideCastleMovement;
+import com.chess.engine.board.Movement.QueenSideCastleMovement;
 import com.chess.engine.pieces.Piece;
 import com.chess.engine.pieces.Rook;
 
@@ -19,20 +19,20 @@ import static com.chess.engine.pieces.Piece.PieceType.ROOK;
 public class WhitePlayer extends Player {
 
     public WhitePlayer(final Board board,
-                       final Collection<Move> whiteStandardLegals,
-                       final Collection<Move> blackStandardLegals) {
+                       final Collection<Movement> whiteStandardLegals,
+                       final Collection<Movement> blackStandardLegals) {
         super(board, whiteStandardLegals, blackStandardLegals);
     }
 
     @Override
-    protected Collection<Move> calculateKingCastles(final Collection<Move> playerLegals,
-                                                    final Collection<Move> opponentLegals) {
+    protected Collection<Movement> calculateKingCastles(final Collection<Movement> playerLegals,
+                                                        final Collection<Movement> opponentLegals) {
 
-        if(!hasCastleOpportunities()) {
+        if(hasCastleOpportunities()) {
             return Collections.emptyList();
         }
 
-        final List<Move> kingCastles = new ArrayList<>();
+        final List<Movement> kingCastles = new ArrayList<>();
 
         if(this.playerKing.isFirstMove() && this.playerKing.getPiecePosition() == 60 && !this.isInCheck()) {
             //whites king side castle
@@ -42,8 +42,8 @@ public class WhitePlayer extends Player {
                     if(Player.calculateAttacksOnTile(61, opponentLegals).isEmpty() &&
                             Player.calculateAttacksOnTile(62, opponentLegals).isEmpty() &&
                             kingSideRook.getPieceType() == ROOK) {
-                        if(!BoardUtils.isKingPawnTrap(this.board, this.playerKing, 52)) {
-                            kingCastles.add(new KingSideCastleMove(this.board, this.playerKing, 62, (Rook) kingSideRook, kingSideRook.getPiecePosition(), 61));
+                        if(BoardHandler.isKingPawnTrap(this.board, this.playerKing, 52)) {
+                            kingCastles.add(new KingSideCastleMovement(this.board, this.playerKing, 62, (Rook) kingSideRook, kingSideRook.getPiecePosition(), 61));
                         }
                     }
                 }
@@ -55,8 +55,8 @@ public class WhitePlayer extends Player {
                 if(queenSideRook != null && queenSideRook.isFirstMove()) {
                     if(Player.calculateAttacksOnTile(58, opponentLegals).isEmpty() &&
                             Player.calculateAttacksOnTile(59, opponentLegals).isEmpty() && queenSideRook.getPieceType() == ROOK) {
-                        if(!BoardUtils.isKingPawnTrap(this.board, this.playerKing, 52)) {
-                            kingCastles.add(new QueenSideCastleMove(this.board, this.playerKing, 58, (Rook) queenSideRook, queenSideRook.getPiecePosition(), 59));
+                        if(BoardHandler.isKingPawnTrap(this.board, this.playerKing, 52)) {
+                            kingCastles.add(new QueenSideCastleMovement(this.board, this.playerKing, 58, (Rook) queenSideRook, queenSideRook.getPiecePosition(), 59));
                         }
                     }
                 }
@@ -76,13 +76,13 @@ public class WhitePlayer extends Player {
     }
 
     @Override
-    public Alliance getAlliance() {
-        return Alliance.WHITE;
+    public Color getAlliance() {
+        return Color.WHITE;
     }
 
     @Override
     public String toString() {
-        return Alliance.WHITE.toString();
+        return Color.WHITE.toString();
     }
 
 }

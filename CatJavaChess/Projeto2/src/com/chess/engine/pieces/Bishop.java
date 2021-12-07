@@ -1,10 +1,10 @@
 package com.chess.engine.pieces;
 
-import com.chess.engine.Alliance;
+import com.chess.engine.Color;
 import com.chess.engine.board.Board;
-import com.chess.engine.board.BoardUtils;
-import com.chess.engine.board.Move;
-import com.chess.engine.board.Move.MajorMove;
+import com.chess.engine.board.BoardHandler;
+import com.chess.engine.board.Movement;
+import com.chess.engine.board.Movement.MajorMovement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,37 +15,37 @@ public final class Bishop extends Piece {
 
     private final static int[] CANDIDATE_MOVE_COORDINATES = {-9, -7, 7, 9};
 
-    public Bishop(final Alliance alliance,
+    public Bishop(final Color color,
                   final int piecePosition) {
-        super(PieceType.BISHOP, alliance, piecePosition, true);
+        super(PieceType.BISHOP, color, piecePosition, true);
     }
 
-    public Bishop(final Alliance alliance,
+    public Bishop(final Color color,
                   final int piecePosition,
                   final boolean isFirstMove) {
-        super(PieceType.BISHOP, alliance, piecePosition, isFirstMove);
+        super(PieceType.BISHOP, color, piecePosition, isFirstMove);
     }
 
     @Override
-    public Collection<Move> calculateLegalMoves(final Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
+    public Collection<Movement> calculateLegalMoves(final Board board) {
+        final List<Movement> legalMovements = new ArrayList<>();
         for (final int currentCandidateOffset : CANDIDATE_MOVE_COORDINATES) {
             int candidateDestinationCoordinate = this.piecePosition;
-            while (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+            while (BoardHandler.VerifyCoordinate(candidateDestinationCoordinate)) {
                 if (isFirstColumnExclusion(currentCandidateOffset, candidateDestinationCoordinate) ||
                         isEighthColumnExclusion(currentCandidateOffset, candidateDestinationCoordinate)) {
                     break;
                 }
                 candidateDestinationCoordinate += currentCandidateOffset;
-                if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+                if (BoardHandler.VerifyCoordinate(candidateDestinationCoordinate)) {
                     final Piece pieceAtDestination = board.getPiece(candidateDestinationCoordinate);
                     if (pieceAtDestination == null) {
-                        legalMoves.add(new MajorMove(board, this, candidateDestinationCoordinate));
+                        legalMovements.add(new MajorMovement(board, this, candidateDestinationCoordinate));
                     }
                     else {
-                        final Alliance pieceAlliance = pieceAtDestination.getPieceAllegiance();
-                        if (this.pieceAlliance != pieceAlliance) {
-                            legalMoves.add(new Move.MajorAttackMove(board, this, candidateDestinationCoordinate,
+                        final Color pieceColor = pieceAtDestination.getPieceAllegiance();
+                        if (this.pieceColor != pieceColor) {
+                            legalMovements.add(new Movement.MajorAttackMovement(board, this, candidateDestinationCoordinate,
                                     pieceAtDestination));
                         }
                         break;
@@ -53,17 +53,12 @@ public final class Bishop extends Piece {
                 }
             }
         }
-        return Collections.unmodifiableList(legalMoves);
+        return Collections.unmodifiableList(legalMovements);
     }
 
     @Override
-    public int locationBonus() {
-        return this.pieceAlliance.bishopBonus(this.piecePosition);
-    }
-
-    @Override
-    public Bishop movePiece(final Move move) {
-        return PieceUtils.INSTANCE.getMovedBishop(move.getMovedPiece().getPieceAllegiance(), move.getDestinationCoordinate());
+    public Bishop movePiece(final Movement movement) {
+        return PieceUtils.INSTANCE.getMovedBishop(movement.getSelectedPiece().getPieceAllegiance(), movement.getSecondCoordinate());
     }
 
     @Override
@@ -73,13 +68,13 @@ public final class Bishop extends Piece {
 
     private static boolean isFirstColumnExclusion(final int currentCandidate,
                                                   final int candidateDestinationCoordinate) {
-        return (BoardUtils.INSTANCE.FIRST_COLUMN.get(candidateDestinationCoordinate) &&
+        return (BoardHandler.INSTANCE.FIRST_COLUMN.get(candidateDestinationCoordinate) &&
                 ((currentCandidate == -9) || (currentCandidate == 7)));
     }
 
     private static boolean isEighthColumnExclusion(final int currentCandidate,
                                                    final int candidateDestinationCoordinate) {
-        return BoardUtils.INSTANCE.EIGHTH_COLUMN.get(candidateDestinationCoordinate) &&
+        return BoardHandler.INSTANCE.EIGHTH_COLUMN.get(candidateDestinationCoordinate) &&
                 ((currentCandidate == -7) || (currentCandidate == 9));
     }
 

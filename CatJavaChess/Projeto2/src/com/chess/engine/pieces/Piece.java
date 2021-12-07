@@ -1,25 +1,25 @@
 package com.chess.engine.pieces;
 
-import com.chess.engine.Alliance;
+import com.chess.engine.Color;
 import com.chess.engine.board.Board;
-import com.chess.engine.board.Move;
+import com.chess.engine.board.Movement;
 
 import java.util.Collection;
 
 public abstract class Piece {
     final PieceType pieceType;
-    final Alliance pieceAlliance;
+    final Color pieceColor;
     final int piecePosition;
     private final boolean isFirstMove;
     private final int cachedHashCode;
 
     Piece(final PieceType type,
-          final Alliance alliance,
+          final Color color,
           final int piecePosition,
           final boolean isFirstMove) {
         this.pieceType = type;
         this.piecePosition = piecePosition;
-        this.pieceAlliance = alliance;
+        this.pieceColor = color;
         this.isFirstMove = isFirstMove;
         this.cachedHashCode = computeHashCode();
     }
@@ -28,8 +28,8 @@ public abstract class Piece {
         return this.pieceType;
     }
 
-    public Alliance getPieceAllegiance() {
-        return this.pieceAlliance;
+    public Color getPieceAllegiance() {
+        return this.pieceColor;
     }
 
     public int getPiecePosition() {
@@ -44,11 +44,9 @@ public abstract class Piece {
         return this.pieceType.getPieceValue();
     }
 
-    public abstract int locationBonus();
+    public abstract Piece movePiece(Movement movement);
 
-    public abstract Piece movePiece(Move move);
-
-    public abstract Collection<Move> calculateLegalMoves(final Board board);
+    public abstract Collection<Movement> calculateLegalMoves(final Board board);
 
 
     @Override
@@ -56,12 +54,11 @@ public abstract class Piece {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof Piece)) {
+        if (!(other instanceof final Piece otherPiece)) {
             return false;
         }
-        final Piece otherPiece = (Piece) other;
         return this.piecePosition == otherPiece.piecePosition && this.pieceType == otherPiece.pieceType &&
-                this.pieceAlliance == otherPiece.pieceAlliance && this.isFirstMove == otherPiece.isFirstMove;
+                this.pieceColor == otherPiece.pieceColor && this.isFirstMove == otherPiece.isFirstMove;
     }
 
     @Override
@@ -71,7 +68,7 @@ public abstract class Piece {
 
     private int computeHashCode() {
         int result = this.pieceType.hashCode();
-        result = 31 * result + this.pieceAlliance.hashCode();
+        result = 31 * result + this.pieceColor.hashCode();
         result = 31 * result + this.piecePosition;
         result = 31 * result + (this.isFirstMove ? 1 : 0);
         return result;

@@ -1,10 +1,10 @@
 package com.chess.engine.pieces;
 
-import com.chess.engine.Alliance;
+import com.chess.engine.Color;
 import com.chess.engine.board.Board;
-import com.chess.engine.board.BoardUtils;
-import com.chess.engine.board.Move;
-import com.chess.engine.board.Move.MajorMove;
+import com.chess.engine.board.BoardHandler;
+import com.chess.engine.board.Movement;
+import com.chess.engine.board.Movement.MajorMovement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,23 +18,23 @@ public final class King extends Piece {
     private final boolean kingSideCastleCapable;
     private final boolean queenSideCastleCapable;
 
-    public King(final Alliance alliance,
+    public King(final Color color,
                 final int piecePosition,
                 final boolean kingSideCastleCapable,
                 final boolean queenSideCastleCapable) {
-        super(PieceType.KING, alliance, piecePosition, true);
+        super(PieceType.KING, color, piecePosition, true);
         this.isCastled = false;
         this.kingSideCastleCapable = kingSideCastleCapable;
         this.queenSideCastleCapable = queenSideCastleCapable;
     }
 
-    public King(final Alliance alliance,
+    public King(final Color color,
                 final int piecePosition,
                 final boolean isFirstMove,
                 final boolean isCastled,
                 final boolean kingSideCastleCapable,
                 final boolean queenSideCastleCapable) {
-        super(PieceType.KING, alliance, piecePosition, isFirstMove);
+        super(PieceType.KING, color, piecePosition, isFirstMove);
         this.isCastled = isCastled;
         this.kingSideCastleCapable = kingSideCastleCapable;
         this.queenSideCastleCapable = queenSideCastleCapable;
@@ -53,28 +53,28 @@ public final class King extends Piece {
     }
 
     @Override
-    public Collection<Move> calculateLegalMoves(final Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
+    public Collection<Movement> calculateLegalMoves(final Board board) {
+        final List<Movement> legalMovements = new ArrayList<>();
         for (final int currentCandidateOffset : CANDIDATE_MOVE_COORDINATES) {
             if (isFirstColumnExclusion(this.piecePosition, currentCandidateOffset) ||
                     isEighthColumnExclusion(this.piecePosition, currentCandidateOffset)) {
                 continue;
             }
             final int candidateDestinationCoordinate = this.piecePosition + currentCandidateOffset;
-            if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+            if (BoardHandler.VerifyCoordinate(candidateDestinationCoordinate)) {
                 final Piece pieceAtDestination = board.getPiece(candidateDestinationCoordinate);
                 if (pieceAtDestination == null) {
-                    legalMoves.add(new MajorMove(board, this, candidateDestinationCoordinate));
+                    legalMovements.add(new MajorMovement(board, this, candidateDestinationCoordinate));
                 } else {
-                    final Alliance pieceAtDestinationAllegiance = pieceAtDestination.getPieceAllegiance();
-                    if (this.pieceAlliance != pieceAtDestinationAllegiance) {
-                        legalMoves.add(new Move.MajorAttackMove(board, this, candidateDestinationCoordinate,
+                    final Color pieceAtDestinationAllegiance = pieceAtDestination.getPieceAllegiance();
+                    if (this.pieceColor != pieceAtDestinationAllegiance) {
+                        legalMovements.add(new Movement.MajorAttackMovement(board, this, candidateDestinationCoordinate,
                                 pieceAtDestination));
                     }
                 }
             }
         }
-        return Collections.unmodifiableList(legalMoves);
+        return Collections.unmodifiableList(legalMovements);
     }
 
     @Override
@@ -83,13 +83,8 @@ public final class King extends Piece {
     }
 
     @Override
-    public int locationBonus() {
-        return this.pieceAlliance.kingBonus(this.piecePosition);
-    }
-
-    @Override
-    public King movePiece(final Move move) {
-        return new King(this.pieceAlliance, move.getDestinationCoordinate(), false, move.isCastlingMove(), false, false);
+    public King movePiece(final Movement movement) {
+        return new King(this.pieceColor, movement.getSecondCoordinate(), false, movement.isCastlingMove(), false, false);
     }
 
     @Override
@@ -97,13 +92,12 @@ public final class King extends Piece {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof King)) {
+        if (!(other instanceof final King king)) {
             return false;
         }
         if (!super.equals(other)) {
             return false;
         }
-        final King king = (King) other;
         return isCastled == king.isCastled;
     }
 
@@ -114,14 +108,14 @@ public final class King extends Piece {
 
     private static boolean isFirstColumnExclusion(final int currentCandidate,
                                                   final int candidateDestinationCoordinate) {
-        return BoardUtils.INSTANCE.FIRST_COLUMN.get(currentCandidate)
+        return BoardHandler.INSTANCE.FIRST_COLUMN.get(currentCandidate)
                 && ((candidateDestinationCoordinate == -9) || (candidateDestinationCoordinate == -1) ||
                 (candidateDestinationCoordinate == 7));
     }
 
     private static boolean isEighthColumnExclusion(final int currentCandidate,
                                                    final int candidateDestinationCoordinate) {
-        return BoardUtils.INSTANCE.EIGHTH_COLUMN.get(currentCandidate)
+        return BoardHandler.INSTANCE.EIGHTH_COLUMN.get(currentCandidate)
                 && ((candidateDestinationCoordinate == -7) || (candidateDestinationCoordinate == 1) ||
                 (candidateDestinationCoordinate == 9));
     }

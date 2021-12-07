@@ -1,9 +1,9 @@
 package com.chess.engine.pieces;
 
-import com.chess.engine.Alliance;
+import com.chess.engine.Color;
 import com.chess.engine.board.Board;
-import com.chess.engine.board.BoardUtils;
-import com.chess.engine.board.Move;
+import com.chess.engine.board.BoardHandler;
+import com.chess.engine.board.Movement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,19 +15,19 @@ public final class Queen extends Piece {
     private final static int[] CANDIDATE_MOVE_COORDINATES = { -9, -8, -7, -1, 1,
             7, 8, 9 };
 
-    public Queen(final Alliance alliance, final int piecePosition) {
-        super(PieceType.QUEEN, alliance, piecePosition, true);
+    public Queen(final Color color, final int piecePosition) {
+        super(PieceType.QUEEN, color, piecePosition, true);
     }
 
-    public Queen(final Alliance alliance,
+    public Queen(final Color color,
                  final int piecePosition,
                  final boolean isFirstMove) {
-        super(PieceType.QUEEN, alliance, piecePosition, isFirstMove);
+        super(PieceType.QUEEN, color, piecePosition, isFirstMove);
     }
 
     @Override
-    public Collection<Move> calculateLegalMoves(final Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
+    public Collection<Movement> calculateLegalMoves(final Board board) {
+        final List<Movement> legalMovements = new ArrayList<>();
         for (final int currentCandidateOffset : CANDIDATE_MOVE_COORDINATES) {
             int candidateDestinationCoordinate = this.piecePosition;
             while (true) {
@@ -36,16 +36,16 @@ public final class Queen extends Piece {
                     break;
                 }
                 candidateDestinationCoordinate += currentCandidateOffset;
-                if (!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+                if (!BoardHandler.VerifyCoordinate(candidateDestinationCoordinate)) {
                     break;
                 } else {
                     final Piece pieceAtDestination = board.getPiece(candidateDestinationCoordinate);
                     if (pieceAtDestination == null) {
-                        legalMoves.add(new Move.MajorMove(board, this, candidateDestinationCoordinate));
+                        legalMovements.add(new Movement.MajorMovement(board, this, candidateDestinationCoordinate));
                     } else {
-                        final Alliance pieceAtDestinationAllegiance = pieceAtDestination.getPieceAllegiance();
-                        if (this.pieceAlliance != pieceAtDestinationAllegiance) {
-                            legalMoves.add(new Move.MajorAttackMove(board, this, candidateDestinationCoordinate,
+                        final Color pieceAtDestinationAllegiance = pieceAtDestination.getPieceAllegiance();
+                        if (this.pieceColor != pieceAtDestinationAllegiance) {
+                            legalMovements.add(new Movement.MajorAttackMovement(board, this, candidateDestinationCoordinate,
                                     pieceAtDestination));
                         }
                         break;
@@ -53,17 +53,12 @@ public final class Queen extends Piece {
                 }
             }
         }
-        return Collections.unmodifiableList(legalMoves);
+        return Collections.unmodifiableList(legalMovements);
     }
 
     @Override
-    public int locationBonus() {
-        return this.pieceAlliance.queenBonus(this.piecePosition);
-    }
-
-    @Override
-    public Queen movePiece(final Move move) {
-        return PieceUtils.INSTANCE.getMovedQueen(move.getMovedPiece().getPieceAllegiance(), move.getDestinationCoordinate());
+    public Queen movePiece(final Movement movement) {
+        return PieceUtils.INSTANCE.getMovedQueen(movement.getSelectedPiece().getPieceAllegiance(), movement.getSecondCoordinate());
     }
 
     @Override
@@ -73,13 +68,13 @@ public final class Queen extends Piece {
 
     private static boolean isFirstColumnExclusion(final int currentPosition,
                                                   final int candidatePosition) {
-        return BoardUtils.INSTANCE.FIRST_COLUMN.get(candidatePosition) && ((currentPosition == -9)
+        return BoardHandler.INSTANCE.FIRST_COLUMN.get(candidatePosition) && ((currentPosition == -9)
                 || (currentPosition == -1) || (currentPosition == 7));
     }
 
     private static boolean isEightColumnExclusion(final int currentPosition,
                                                   final int candidatePosition) {
-        return BoardUtils.INSTANCE.EIGHTH_COLUMN.get(candidatePosition) && ((currentPosition == -7)
+        return BoardHandler.INSTANCE.EIGHTH_COLUMN.get(candidatePosition) && ((currentPosition == -7)
                 || (currentPosition == 1) || (currentPosition == 9));
     }
 
