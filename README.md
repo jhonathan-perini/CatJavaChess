@@ -3,11 +3,13 @@
 
 **You must to download the release v1.3.0**
 
-This project was developed using the IntelliJ IDE. If you're using it too, please, select File, Invalidate Caches and Invalidate and restart to ensure the correct imports. 
+**This project was developed using the IntelliJ IDE. If you're using it too, please, select File, Invalidate Caches and Invalidate and restart to ensure the correct imports.**
 
 
 
-Developed by Jhonathan Perini and Rubens de Vasconcellos Conti Neto
+**Developed by Jhonathan Perini and Rubens de Vasconcellos Conti Neto**
+
+
 
 #MEOW
 
