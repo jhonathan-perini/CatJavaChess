@@ -3,7 +3,7 @@
 
 **You must to download the release v1.3.0**
 
-This project was developed using the IntelliJ IDE.
+This project was developed using the IntelliJ IDE. If you're using it too, please, select file, invalidate caches and Invalidate and restart to ensure the correct imports. 
 
 
 
