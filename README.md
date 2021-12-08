@@ -1,5 +1,8 @@
 # CatJavaChess
-Initial GUI
+
+
+**You must to download the release v1.3.0**
+
 
 
 Developed by Jhonathan Perini and Rubens de Vasconcellos Conti Neto
