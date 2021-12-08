@@ -3,6 +3,8 @@
 
 **You must to download the release v1.3.0**
 
+This project was developed using the IntelliJ IDE.
+
 
 
 Developed by Jhonathan Perini and Rubens de Vasconcellos Conti Neto
